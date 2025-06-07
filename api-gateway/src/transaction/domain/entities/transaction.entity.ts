@@ -10,7 +10,7 @@ export default class TransactionEntity {
     public readonly accountingExternalIdCredit: string,
     public readonly transferType: TransferTypeEntity,
     public readonly transactionType: TransactionTypeEntity,
-    public readonly transactionStatus: TransactionStatusEntity,
+    public transactionStatus: TransactionStatusEntity,
     public readonly amount: number,
     public readonly createdAt: Date,
   ) {}

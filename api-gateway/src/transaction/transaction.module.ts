@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import TransactionController from './interface/controller/transaction.controller';
 import {
+  TRANSACTION_MICROSERVICE_PRODUCER,
+  TRANSACTION_PRODUCER_SERVICE,
   TRANSACTION_REPOSITORY,
   TRANSACTION_SERVICE,
   TRANSACTION_STATUS_REPOSITORY,
@@ -23,6 +25,11 @@ import TransactionStatusRepositoryImpl from './infrastructure/database/repositor
 import TransferTypeOrmEntity from './infrastructure/database/entitties/transferTypeOrm.entity';
 import TransactionTypeOrmEntity from './infrastructure/database/entitties/transactionTypeOrm.entity';
 import TransactionStatusOrmEntity from './infrastructure/database/entitties/transactionStatusOrm.entity';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
+import TransactionProducerServiceImpl from './application/service/transactionProducer.service.impl';
+import { KafkaConfig } from '../config/kafka.config';
+import TransactionConsumerController from './interface/controller/transactionConsumer.controller';
 
 @Module({
   imports: [
@@ -32,8 +39,31 @@ import TransactionStatusOrmEntity from './infrastructure/database/entitties/tran
       TransactionTypeOrmEntity,
       TransactionStatusOrmEntity,
     ]),
+    ClientsModule.registerAsync([
+      {
+        inject: [ConfigService],
+        name: TRANSACTION_MICROSERVICE_PRODUCER,
+        useFactory: (configService: ConfigService) => {
+          const kafkaConfig = configService.get<KafkaConfig>('kafka');
+
+          if (!kafkaConfig) {
+            throw new Error('Kafka configuration is not defined');
+          }
+
+          return {
+            transport: Transport.KAFKA,
+            options: {
+              client: {
+                clientId: kafkaConfig.client.producerId,
+                brokers: kafkaConfig.brokers,
+              },
+            },
+          };
+        },
+      },
+    ]),
   ],
-  controllers: [TransactionController],
+  controllers: [TransactionController, TransactionConsumerController],
   providers: [
     { provide: TRANSACTION_SERVICE, useClass: TransactionServiceImpl },
     { provide: TRANSACTION_REPOSITORY, useClass: TransactionRepositoryImpl },
@@ -43,6 +73,7 @@ import TransactionStatusOrmEntity from './infrastructure/database/entitties/tran
     { provide: TRANSACTION_TYPE_REPOSITORY, useClass: TransactionTypeRepositoryImpl },
     { provide: TRANSACTION_STATUS_SERVICE, useClass: TransactionStatusServiceImpl },
     { provide: TRANSACTION_STATUS_REPOSITORY, useClass: TransactionStatusRepositoryImpl },
+    { provide: TRANSACTION_PRODUCER_SERVICE, useClass: TransactionProducerServiceImpl },
   ],
 })
 export class TransactionModule {}

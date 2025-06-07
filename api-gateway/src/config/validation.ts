@@ -8,4 +8,8 @@ export const configValidationSchema = joi.object({
   DB_USER: joi.string().required(),
   DB_PASS: joi.string().required(),
   DB_NAME: joi.string().required(),
+  KAFKA_BROKER_0: joi.string().required(),
+  KAFKA_CLIENT_ID_CONSUMER: joi.string().required(),
+  KAFKA_CLIENT_ID_PRODUCER: joi.string().required(),
+  KAFKA_GROUP_ID: joi.string().required(),
 });
