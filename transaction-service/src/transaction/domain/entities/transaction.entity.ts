@@ -1,0 +1,17 @@
+import TransferTypeEntity from './transferType.entity';
+import TransactionTypeEntity from './transactionType.entity';
+import TransactionStatusEntity from './transactionStatus.entity';
+
+export default class TransactionEntity {
+  public id: string;
+
+  constructor(
+    public readonly accountingExternalIdDebit: string,
+    public readonly accountingExternalIdCredit: string,
+    public readonly transferType: TransferTypeEntity,
+    public readonly transactionType: TransactionTypeEntity,
+    public readonly transactionStatus: TransactionStatusEntity,
+    public readonly amount: number,
+    public readonly createdAt: Date,
+  ) {}
+}
