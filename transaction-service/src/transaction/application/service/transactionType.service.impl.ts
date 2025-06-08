@@ -1,8 +1,9 @@
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import TransactionTypeService from '../../domain/services/transactionType.service';
 import { TRANSACTION_TYPE_REPOSITORY } from '../../commons/tokens';
 import TransactionTypeRepository from '../../domain/repositories/transactionType.repository';
 import TransactionTypeEntity from 'src/transaction/domain/entities/transactionType.entity';
+import RpcBusinessException from '../../interface/exceptions/RpcBusinessException';
 
 export default class TransactionTypeServiceImpl implements TransactionTypeService {
   constructor(
@@ -14,7 +15,7 @@ export default class TransactionTypeServiceImpl implements TransactionTypeServic
     const transactionType = await this.transactionTypeRepo.findOneByName(name);
 
     if (!transactionType) {
-      throw new NotFoundException('Transaction Type not found');
+      throw new RpcBusinessException('Transfer type not found', 404);
     }
 
     return transactionType;

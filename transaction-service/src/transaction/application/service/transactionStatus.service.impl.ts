@@ -1,8 +1,9 @@
 import TransactionStatusService from '../../domain/services/transactionStatus.service';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { TRANSACTION_STATUS_REPOSITORY } from '../../commons/tokens';
 import TransactionStatusRepository from '../../domain/repositories/transactionStatus.repository';
 import TransactionStatusEntity from 'src/transaction/domain/entities/transactionStatus.entity';
+import RpcBusinessException from '../../interface/exceptions/RpcBusinessException';
 
 export default class TransactionStatusServiceImpl implements TransactionStatusService {
   constructor(
@@ -14,7 +15,7 @@ export default class TransactionStatusServiceImpl implements TransactionStatusSe
     const transactionStatus = await this.transactionStatusRepo.findOneByName(name);
 
     if (!transactionStatus) {
-      throw new NotFoundException('Transaction Status not found');
+      throw new RpcBusinessException('Transfer type not found', 404);
     }
 
     return transactionStatus;
