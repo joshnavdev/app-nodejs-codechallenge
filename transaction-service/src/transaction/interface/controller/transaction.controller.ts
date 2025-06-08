@@ -6,6 +6,12 @@ import TransactionEntity from '../../domain/entities/transaction.entity';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Serialize } from '../decorators/serialize.decorator';
 import { RpcExceptionFilter } from '../filters/rpcException.filter';
+import {
+  APPROVE_TRANSACTION_TOPIC,
+  REJECT_TRANSACTION_TOPIC,
+  TRANSACTION_CREATE_TOPIC,
+  TRANSACTION_GET_BY_ID_TOPIC,
+} from '../../commons/constants';
 
 @Controller()
 @UseFilters(RpcExceptionFilter)
@@ -17,26 +23,26 @@ export default class TransactionController {
     private readonly transactionService: TransactionService,
   ) {}
 
-  @MessagePattern('transaction_create')
+  @MessagePattern(TRANSACTION_CREATE_TOPIC)
   @Serialize(TransactionEntity)
   createTransaction(@Payload(ValidationPipe) createTransactionDto: CreateTransactionDto) {
     this.logger.log('ON EVENT: transaction_create');
     return this.transactionService.create(createTransactionDto);
   }
 
-  @MessagePattern('approve_transaction')
-  approveTransaction({ transactionId }: { transactionId: string }) {
+  @MessagePattern(APPROVE_TRANSACTION_TOPIC)
+  async approveTransaction({ transactionId }: { transactionId: string }) {
     this.logger.log('Transaction approval event received');
-    return void this.transactionService.approveTransaction(transactionId);
+    await this.transactionService.approveTransaction(transactionId);
   }
 
-  @MessagePattern('reject_transaction')
-  rejectTransaction({ transactionId }: { transactionId: string }) {
+  @MessagePattern(REJECT_TRANSACTION_TOPIC)
+  async rejectTransaction({ transactionId }: { transactionId: string }) {
     this.logger.log('Transaction rejection event received');
-    return void this.transactionService.rejectTransaction(transactionId);
+    await this.transactionService.rejectTransaction(transactionId);
   }
 
-  @MessagePattern('transaction_get_by_id')
+  @MessagePattern(TRANSACTION_GET_BY_ID_TOPIC)
   @Serialize(TransactionEntity)
   getTransaction(@Payload() id: string) {
     this.logger.log('ON EVENT: transaction_get_by_id');

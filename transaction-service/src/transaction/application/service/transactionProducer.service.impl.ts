@@ -6,6 +6,7 @@ import { ValidateTransaction } from '../../domain/dtos/validateTransaction';
 import TransactionEntity from '../../domain/entities/transaction.entity';
 import CreateTransaction from 'src/transaction/domain/dtos/createTransaction';
 import { firstValueFrom } from 'rxjs';
+import { TRANSACTION_CREATE_TOPIC, TRANSACTION_CREATED_TOPIC } from '../../commons/constants';
 
 @Injectable()
 export default class TransactionProducerServiceImpl implements TransactionProducerService, OnModuleInit {
@@ -18,7 +19,7 @@ export default class TransactionProducerServiceImpl implements TransactionProduc
 
   emitTransactionCreate(transaction: CreateTransaction): Promise<TransactionEntity> {
     this.logger.log('EMIT EVENT: transaction_create');
-    return firstValueFrom(this.client.send<TransactionEntity>('transaction_create', transaction));
+    return firstValueFrom(this.client.send<TransactionEntity>(TRANSACTION_CREATE_TOPIC, transaction));
   }
 
   emitTransactionValidation(transaction: TransactionEntity): void {
@@ -29,10 +30,10 @@ export default class TransactionProducerServiceImpl implements TransactionProduc
       amount: transaction.amount,
     };
 
-    this.client.emit('transaction_created', transactionData);
+    this.client.emit(TRANSACTION_CREATED_TOPIC, transactionData);
   }
 
   onModuleInit() {
-    this.client.subscribeToResponseOf('transaction_create');
+    this.client.subscribeToResponseOf(TRANSACTION_CREATED_TOPIC);
   }
 }
