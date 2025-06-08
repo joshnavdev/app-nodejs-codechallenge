@@ -58,6 +58,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - PORT=3000
       - KAFKA_BROKER_0=kafka:29092
       - KAFKA_CLIENT_ID_CONSUMER=api-gateway-consumer
       - KAFKA_CLIENT_ID_PRODUCER=api-gateway-producer
@@ -70,10 +71,11 @@ services:
     ports:
       - "3005:3000"
     environment:
+      - PORT=3000
       - KAFKA_BROKER_0=kafka:29092
-      - KAFKA_CLIENT_ID_CONSUMER=api-gateway-consumer
-      - KAFKA_CLIENT_ID_PRODUCER=api-gateway-producer
-      - KAFKA_GROUP_ID=api-gateway-group
+      - KAFKA_CLIENT_ID_CONSUMER=graphql-gateway-consumer
+      - KAFKA_CLIENT_ID_PRODUCER=graphql-gateway-producer
+      - KAFKA_GROUP_ID=graphql-gateway-group
   transaction-service:
     build: ./transaction-service
     depends_on:
