@@ -10,12 +10,11 @@ export default class AntiFraudController {
   constructor(@Inject() public readonly antiFraudService: AntiFraudService) {}
 
   @MessagePattern('transaction_created')
-  transactionCreated(@Payload() transaction: TransactionDto) {
+  transactionCreated(@Payload() transaction: TransactionDto): void {
     this.logger.log('Transaction created event received');
     const isFraudulent = this.antiFraudService.validateTransaction(transaction);
 
     this.logger.log('Transaction validation completed');
-
     this.antiFraudService.emitTransactionStatusUpdate(transaction.id, isFraudulent);
   }
 }
