@@ -12,6 +12,7 @@ import { ConfigModule } from './config/config.module';
       graphiql: true,
       driver: ApolloDriver,
       resolvers: { UUID: CustomUuidScalar },
+      introspection: true,
     }),
     TransactionModule,
     ConfigModule,
