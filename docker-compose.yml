@@ -2,11 +2,18 @@ version: "3.7"
 services:
   postgres:
     image: postgres:14
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=transaction_service
   zookeeper:
     image: confluentinc/cp-zookeeper:5.5.3
     environment:
@@ -14,6 +21,12 @@ services:
   kafka:
     image: confluentinc/cp-enterprise-kafka:5.5.3
     depends_on: [zookeeper]
+    healthcheck:
+      test: [ "CMD", "kafka-topics", "--bootstrap-server", "kafka:29092", "--list" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     environment:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
@@ -22,4 +35,57 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_JMX_PORT: 9991
     ports:
-      - 9092:9092
+      - "9092:9092"
+  db-migration:
+    build:
+      context: ./transaction-service
+      dockerfile: Dockerfile.migration
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=transaction_service
+
+  api-gateway:
+    build: ./api-gateway
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      - KAFKA_BROKER_0=kafka:29092
+      - KAFKA_CLIENT_ID_CONSUMER=api-gateway-consumer
+      - KAFKA_CLIENT_ID_PRODUCER=api-gateway-producer
+      - KAFKA_GROUP_ID=api-gateway-group
+  transaction-service:
+    build: ./transaction-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+      db-migration:
+        condition: service_completed_successfully
+    environment:
+      - KAFKA_BROKER_0=kafka:29092
+      - KAFKA_CLIENT_ID_CONSUMER=transaction-service-consumer
+      - KAFKA_CLIENT_ID_PRODUCER=transaction-service-producer
+      - KAFKA_GROUP_ID=transaction-service-group
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=transaction_service
+  anti-fraud-service:
+    build: ./anti-fraud-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - KAFKA_BROKER_0=kafka:29092
+      - KAFKA_CLIENT_ID_CONSUMER=anti-fraud-service-consumer
+      - KAFKA_CLIENT_ID_PRODUCER=anti-fraud-service-producer
+      - KAFKA_GROUP_ID=anti-fraud-service-group
