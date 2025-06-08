@@ -15,6 +15,7 @@ async function bootstrap() {
           client: {
             clientId: kafkaConfig?.client.consumerId as string,
             brokers: kafkaConfig?.brokers as string[],
+            logLevel: 0,
           },
           consumer: {
             groupId: kafkaConfig?.groupId as string,
