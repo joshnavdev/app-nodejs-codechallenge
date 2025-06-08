@@ -1,5 +1,5 @@
 import TransactionDto from './dtos/transaction.dto';
-import { TRANSACTION_AMOUNT_THRESHOLD } from './constants';
+import { APPROVE_TRANSACTION_TOPIC, REJECT_TRANSACTION_TOPIC, TRANSACTION_AMOUNT_THRESHOLD } from './constants';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ANTI_FRAUD_EVENT_PRODUCER } from './tokens';
 import { ClientKafka } from '@nestjs/microservices';
@@ -27,11 +27,11 @@ export default class AntiFraudService {
 
   private emitRejectTransaction(transactionId: string) {
     this.logger.log(`Emitting reject transaction event for ID: ${transactionId}`);
-    this.clientProducer.emit('reject_transaction', { transactionId });
+    this.clientProducer.emit(REJECT_TRANSACTION_TOPIC, { transactionId });
   }
 
   private emitApproveTransaction(transactionId: string) {
     this.logger.log(`Emitting approve transaction event for ID: ${transactionId}`);
-    this.clientProducer.emit('approve_transaction', { transactionId });
+    this.clientProducer.emit(APPROVE_TRANSACTION_TOPIC, { transactionId });
   }
 }
