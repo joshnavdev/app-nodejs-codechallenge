@@ -36,6 +36,16 @@ services:
       KAFKA_JMX_PORT: 9991
     ports:
       - "9092:9092"
+  redis:
+    image: redis:7
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    ports:
+      - "6379:6379"
   db-migration:
     build:
       context: ./transaction-service
@@ -68,6 +78,8 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "3005:3000"
     environment:
@@ -76,6 +88,8 @@ services:
       - KAFKA_CLIENT_ID_CONSUMER=graphql-gateway-consumer
       - KAFKA_CLIENT_ID_PRODUCER=graphql-gateway-producer
       - KAFKA_GROUP_ID=graphql-gateway-group
+      - CACHE_URL=redis://redis:6379
+      - CACHE_TTL=3600000
   transaction-service:
     build: ./transaction-service
     depends_on:

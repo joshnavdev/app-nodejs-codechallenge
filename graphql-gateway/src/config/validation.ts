@@ -7,4 +7,6 @@ export const configValidationSchema = joi.object({
   KAFKA_CLIENT_ID_CONSUMER: joi.string().required(),
   KAFKA_CLIENT_ID_PRODUCER: joi.string().required(),
   KAFKA_GROUP_ID: joi.string().required(),
+  CACHE_URL: joi.string().required(),
+  CACHE_TTL: joi.number().default(3600),
 });

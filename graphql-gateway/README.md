@@ -13,6 +13,7 @@ gateway decouples the frontend from the backend logic while enabling an efficien
 - Emit a `transaction_get_by_id` event to Kafka when on get transaction query.
 - Waits for responses from other services using Kafka request-response pattern.
 - Supports UUID-based queries for fetching transaction details.
+- Uses Redis for caching transaction data to improve performance.
 
 ## Tech Stack
 
@@ -21,6 +22,7 @@ gateway decouples the frontend from the backend logic while enabling an efficien
 - Kafka - for event-driven communication
 - Jest - for unit testing
 - Apollo Server - for GraphQL server implementation
+- Redis - for caching transaction data
 
 ## GraphQL Endpoints
 

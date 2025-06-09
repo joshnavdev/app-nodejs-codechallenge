@@ -3,9 +3,15 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import TransactionResolver from './interface/graphql/resolvers/transaction.resolve';
 import { ConfigService } from '@nestjs/config';
 import { KafkaConfig } from '../config/kafka.config';
-import { GRAPHQL_TRANSACTION_PRODUCER, TRANSACTION_EVENT, TRANSACTION_SERVICE } from './commons/tokens';
+import {
+  GRAPHQL_TRANSACTION_PRODUCER,
+  TRANSACTION_EVENT,
+  TRANSACTION_REPOSITORY,
+  TRANSACTION_SERVICE,
+} from './commons/tokens';
 import TransactionServiceImpl from './application/service/transaction.service.impl';
 import TransactionEventImpl from './infrastructure/events/transaction.event.impl';
+import TransactionRepositoryImpl from './infrastructure/repositories/transaction.repository.impl';
 
 @Module({
   imports: [
@@ -40,6 +46,7 @@ import TransactionEventImpl from './infrastructure/events/transaction.event.impl
     TransactionResolver,
     { provide: TRANSACTION_SERVICE, useClass: TransactionServiceImpl },
     { provide: TRANSACTION_EVENT, useClass: TransactionEventImpl },
+    { provide: TRANSACTION_REPOSITORY, useClass: TransactionRepositoryImpl },
   ],
 })
 export class TransactionModule {}
