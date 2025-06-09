@@ -1,32 +1,37 @@
 # Transaction Service
 
 ## Description
-This service is responsible for managing financial transactions within the system. It is part of a microservices-based architecture and communicates asynchronously with other services, such as the Anti-Fraud Service, using Kafka.
+
+This service is responsible for managing financial transactions within the system. It is part of a microservices-based
+architecture and communicates asynchronously with other services, such as the Anti-Fraud Service, using Kafka.
 
 ## Overview
+
 - Creates transactions with an initial status of `PENDING`.
 - Emits a `transaction_created` event to `Kafka` upon transaction creation.
 - Listens to `approve_transaction` and `reject_transaction` events to update the status of transactions.
 - Listens to `transaction_get_by_id` event to retrieve transaction details by ID.
 
 ## Tech Stack
+
 - Node.js - using the NestJS framework
 - ProstgreSQL - with TypeORM as ORM
 - Kafka - for event-driven communication
 - Jest - for unit testing
 
 ## Kafka Topics
-- **Produces:**
-  - `transaction_created`: Published after a new transaction is saved.
-- **Consumes**:
-  - `approve_transaction`: Consumed to update the status of a transaction to `APPROVED`.
-  - `reject_transaction`: Consumed to update the status of a transaction to `REJECTED`.
-  - `transaction_get_by_id`: Consumed to retrieve a transaction by its ID.
 
+- **Produces:**
+    - `transaction_created`: Published after a new transaction is saved.
+- **Consumes**:
+    - `approve_transaction`: Consumed to update the status of a transaction to `APPROVED`.
+    - `reject_transaction`: Consumed to update the status of a transaction to `REJECTED`.
+    - `transaction_get_by_id`: Consumed to retrieve a transaction by its ID.
 
 ## Environment Variables
+
 | Variable                   | Description                  |
-| -------------------------- | ---------------------------- |
+|----------------------------|------------------------------|
 | `PORT`                     | Application port             |
 | `DB_HOST`                  | Database host                |
 | `DB_PORT`                  | Database port                |
