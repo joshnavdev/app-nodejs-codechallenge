@@ -61,4 +61,4 @@ To execute the test suite:
 yarn test
 ```
 
-test 8
+test 9
