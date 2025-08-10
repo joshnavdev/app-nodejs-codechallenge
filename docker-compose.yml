@@ -59,3 +59,48 @@ services:
       - DB_USER=postgres
       - DB_PASS=postgres
       - DB_NAME=transaction_service
+
+  graphql-api:
+    build: ./graphql-api
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3005:3000"
+    environment:
+      - PORT=3000
+      - KAFKA_BROKER_0=kafka:29092
+      - KAFKA_CLIENT_ID_CONSUMER=graphql-gateway-consumer
+      - KAFKA_CLIENT_ID_PRODUCER=graphql-gateway-producer
+      - KAFKA_GROUP_ID=graphql-gateway-group
+      - CACHE_URL=redis://redis:6379
+      - CACHE_TTL=3600000
+  transaction-service:
+    build: ./transaction-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+      db-migration:
+        condition: service_completed_successfully
+    environment:
+      - KAFKA_BROKER_0=kafka:29092
+      - KAFKA_CLIENT_ID_CONSUMER=transaction-service-consumer
+      - KAFKA_CLIENT_ID_PRODUCER=transaction-service-producer
+      - KAFKA_GROUP_ID=transaction-service-group
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=transaction_service
+  anti-fraud-service:
+    build: ./anti-fraud-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - KAFKA_BROKER_0=kafka:29092
+      - KAFKA_CLIENT_ID_CONSUMER=anti-fraud-service-consumer
+      - KAFKA_CLIENT_ID_PRODUCER=anti-fraud-service-producer
+      - KAFKA_GROUP_ID=anti-fraud-service-group
