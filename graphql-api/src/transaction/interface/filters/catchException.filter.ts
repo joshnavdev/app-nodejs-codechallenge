@@ -3,26 +3,36 @@ import { Catch, HttpStatus } from '@nestjs/common';
 import { GqlExceptionFilter } from '@nestjs/graphql';
 import { GraphQLException } from '@nestjs/graphql/dist/exceptions';
 import { GraphQLError } from 'graphql/error';
+import { z } from 'zod';
 
 interface MicroserviceException {
-  type: string;
-  statusCode: number;
-  message: string;
+  error: {
+    type: string;
+    statusCode: number;
+    message: string;
+  };
 }
 
 @Catch()
 export class CatchExceptionFilter implements GqlExceptionFilter {
   private isMicroserviceException(exception: unknown): exception is MicroserviceException {
-    return (
-      typeof exception === 'object' &&
-      exception !== null &&
-      'type' in exception &&
-      typeof (exception as any).type === 'string' &&
-      'statusCode' in exception &&
-      typeof (exception as any).statusCode === 'number' &&
-      'message' in exception &&
-      typeof (exception as any).message === 'string'
-    );
+    const microserviceExceptionSchema = z.object({
+      error: z.object({
+        statusCode: z.number(),
+        message: z.string(),
+        type: z.string(),
+      }),
+    });
+
+    return microserviceExceptionSchema.safeParse(exception).success;
+  }
+
+  private hasMessage(exception: unknown): exception is { message: string } {
+    const messageSchema = z.object({
+      message: z.string(),
+    });
+
+    return messageSchema.safeParse(exception).success;
   }
 
   catch(exception: unknown) {
@@ -31,11 +41,15 @@ export class CatchExceptionFilter implements GqlExceptionFilter {
     }
 
     if (this.isMicroserviceException(exception)) {
-      return new GraphQLError(exception.message, {
+      const {
+        error: { message, statusCode },
+      } = exception;
+
+      return new GraphQLError(message, {
         extensions: {
-          statusCode: exception.statusCode,
-          message: exception.message,
-          code: HttpStatus[exception.statusCode] || HttpStatus[HttpStatus.INTERNAL_SERVER_ERROR],
+          statusCode: statusCode,
+          message: message,
+          code: HttpStatus[statusCode] || HttpStatus[HttpStatus.INTERNAL_SERVER_ERROR],
         },
       });
     }
@@ -43,7 +57,7 @@ export class CatchExceptionFilter implements GqlExceptionFilter {
     return new GraphQLError('Internal server error', {
       extensions: {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: exception instanceof Error ? exception.message : String(exception),
+        message: this.hasMessage(exception) ? exception.message : String(exception),
         code: HttpStatus[HttpStatus.INTERNAL_SERVER_ERROR],
       },
     });
