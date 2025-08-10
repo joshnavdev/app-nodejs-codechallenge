@@ -16,7 +16,7 @@ export class TransactionTypeServiceImpl implements TransactionTypeService {
     const transactionType = await this.transactionTypeRepo.findOneByName(name);
 
     if (!transactionType) {
-      throw new BadRequestError('TransactionType not found');
+      throw new BadRequestError('Transaction type not found');
     }
 
     return transactionType;

@@ -3,7 +3,7 @@ import { TransactionStatusService } from '../../domain/services/transactionStatu
 import { TRANSACTION_STATUS_REPOSITORY } from '../../domain/constants';
 import { TransactionStatusRepository } from '../../domain/repositories/transactionStatus.repository';
 import { TransactionStatusEntity } from '../../domain/entities/transactionStatus.entity';
-import { BadRequestError } from '../../domain/errors/badRequest.error';
+import { NotFoundError } from '../../domain/errors/notFound.error';
 
 @Injectable()
 export class TransactionStatusServiceImpl implements TransactionStatusService {
@@ -16,7 +16,7 @@ export class TransactionStatusServiceImpl implements TransactionStatusService {
     const transactionStatus = await this.transactionStatusRepo.findOneByName(name);
 
     if (!transactionStatus) {
-      throw new BadRequestError('Transaction not found');
+      throw new NotFoundError('Transaction Status not found');
     }
 
     return transactionStatus;
