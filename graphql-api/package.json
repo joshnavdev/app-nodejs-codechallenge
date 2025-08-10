@@ -2,8 +2,11 @@
   "name": "graphql-api",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Joshua Navarro <joshua.navarro35@gmail.com>",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
@@ -83,6 +86,11 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      ".*\\.module\\.ts$",
+      ".*main\\.ts$",
+      ".*\\.providers\\.ts$"
+    ]
   }
 }

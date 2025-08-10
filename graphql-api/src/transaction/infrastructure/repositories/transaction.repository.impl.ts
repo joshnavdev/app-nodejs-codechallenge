@@ -1,4 +1,4 @@
-import TransactionRepository from '../../domain/repositories/transaction.repository';
+import { TransactionRepository } from '../../domain/repositories/transaction.repository';
 import { Inject } from '@nestjs/common';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { TransactionEntity } from '../../domain/entities/transaction.entity';

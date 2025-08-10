@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import TransactionEvent from '../../domain/events/transaction.event';
+import { TransactionEvent } from '../../domain/events/transaction.event';
 import { ClientKafka } from '@nestjs/microservices';
 import { CreateTransaction } from '../../domain/dtos/createTransaction';
 import { TransactionEntity } from '../../domain/entities/transaction.entity';
