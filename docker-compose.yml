@@ -46,3 +46,16 @@ services:
       start_period: 10s
     ports:
       - "6379:6379"
+  db-migration:
+    build:
+      context: ./transaction-service
+      dockerfile: Dockerfile.migration
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=transaction_service
