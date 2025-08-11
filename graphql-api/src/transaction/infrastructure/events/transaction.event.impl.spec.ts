@@ -4,7 +4,7 @@ import { of } from 'rxjs';
 import { TransactionEventImpl } from './transaction.event.impl';
 import { CreateTransaction } from 'src/transaction/domain/dtos/createTransaction';
 import { createMockTransactionEntity } from '../../../../test/factories/transactionEntity.factory';
-import { GRAPHQL_TRANSACTION_PRODUCER } from '../../domain/constants';
+import { GRAPHQL_TRANSACTION_PRODUCER } from '../../../kafka/tokens';
 
 describe('TransactionEventImpl', () => {
   let service: TransactionEventImpl;
