@@ -1,20 +1,17 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { TransactionEvent } from '../../domain/events/transaction.event';
 import { ClientKafka } from '@nestjs/microservices';
 import { CreateTransaction } from '../../domain/dtos/createTransaction';
 import { TransactionEntity } from '../../domain/entities/transaction.entity';
-import {
-  GRAPHQL_TRANSACTION_PRODUCER,
-  TRANSACTION_CREATE_EVENT,
-  TRANSACTION_GET_BY_ID_EVENT,
-} from '../../domain/constants';
+import { TRANSACTION_CREATE_EVENT, TRANSACTION_GET_BY_ID_EVENT } from '../../domain/constants';
 import { firstValueFrom } from 'rxjs';
+import { InjectKafka } from '../../../kafka/inject.decorator';
 
 @Injectable()
 export class TransactionEventImpl implements TransactionEvent, OnModuleInit {
   private readonly logger = new Logger(TransactionEventImpl.name);
 
-  constructor(@Inject(GRAPHQL_TRANSACTION_PRODUCER) private readonly client: ClientKafka) {}
+  constructor(@InjectKafka() private readonly client: ClientKafka) {}
 
   emitTransactionCreate(transaction: CreateTransaction): Promise<TransactionEntity> {
     this.logger.log(`EMIT EVENT: ${TRANSACTION_CREATE_EVENT}`);
